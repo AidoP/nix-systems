@@ -3,4 +3,5 @@ let
 in {
     "trifuse-xyz-cert.age".publicKeys = [ saifae ];
     "trifuse-xyz-key.age".publicKeys = [ saifae ];
+    "ddclient-trifuse-xyz-token.age".publicKeys = [ saifae ];
 }

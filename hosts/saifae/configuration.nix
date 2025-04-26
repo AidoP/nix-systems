@@ -1,13 +1,13 @@
-{ config, lib, pkgs, ... }: {
+{ config, lib, pkgs, ... }: let
+    trifuse-xyz-cert = config.age.secrets.trifuse-xyz-cert.path;
+    trifuse-xyz-key = config.age.secrets.trifuse-xyz-key.path;
+    ddclient-trifuse-xyz-token = config.age.secrets.ddclient-trifuse-xyz-token.path;
+in {
     imports = [
         ./hardware-configuration.nix
     ];
 
     networking.hostId = "f7fb8403";
-
-    systemd.tmpfiles.rules = [
-        "d /srv/.well-known 1775 acme acme 1d"
-    ];
 
     users.users.aidop = {
         isNormalUser = true;
@@ -40,7 +40,7 @@
     networking.nftables.enable = true;
     networking.firewall = {
         enable = true;
-        allowedTCPPorts = [ 80 443 8096 ];
+        allowedTCPPorts = [ 443 8096 ];
     };
     networking.nat = {
         enable = true;
@@ -61,31 +61,30 @@
         ];
     };
 
-# security.acme.defaults.server = "https://acme-staging-v02.api.letsencrypt.org/directory";
-#
-#     users.groups.trifuse-xyz = { gid = 10001; };
-#     security.acme = {
-#         acceptTerms = true;
-#         defaults = {
-#             email = "admin@trifuse.xyz";
-#             keyType = "ec256";
-#         };
-#         certs."trifuse.xyz" = {
-#             reloadServices = [ "container@www" ];
-#             listenHTTP = ":80";
-#             group = "trifuse-xyz";
-#         };
-#     };
-#
+    services.ddclient = {
+        enable = true;
+        domains = [ "trifuse.xyz" ];
+        usev4 = "webv4, webv4=ipify-ipv4";
+        usev6 = "disabled";
+        protocol = "cloudflare";
+        passwordFile = ddclient-trifuse-xyz-token;
+        username = "token";
+        zone = "trifuse.xyz";
+    };
+
+    users.groups.trifuse-xyz = {};
     containers.www = {
         autoStart = true;
         privateNetwork = true;
         hostAddress = "192.168.1.103";
         localAddress = "192.168.2.1";
         bindMounts = {
-            # "/var/lib/acme" = {
-            #     isReadOnly = true;
-            # };
+            "${trifuse-xyz-cert}" = {
+                isReadOnly = true;
+            };
+            "${trifuse-xyz-key}" = {
+                isReadOnly = true;
+            };
             "/srv" = {
                 isReadOnly = true;
             };
@@ -98,22 +97,22 @@
                 enable = true;
                 allowedTCPPorts = [ 443 ];
             };
+            users.groups.trifuse-xyz = {};
             services.static-web-server = {
                 enable = true;
                 listen = "[::]:443";
                 root = "/srv";
                 configuration = {
                     general = {
-                        directory-listing = true;
+                        directory-listing = false;
                         http2 = true;
-                        http2-tls-cert = config.age.secrets.trifuse-xyz-cert.path;
-                        http2-tls-key = config.age.secrets.trifuse-xyz-key.path;
+                        http2-tls-cert = trifuse-xyz-cert;
+                        http2-tls-key = trifuse-xyz-key;
                         security-headers = true;
                     };
                 };
             };
-            # users.groups.trifuse-xyz = { gid = 10001; };
-            # systemd.services.static-web-server.serviceConfig.SupplementaryGroups = pkgs.lib.mkForce [ "" "trifuse-xyz" ];
+            systemd.services.static-web-server.serviceConfig.SupplementaryGroups = pkgs.lib.mkForce [ "" "trifuse-xyz" ];
         };
     };
 
@@ -122,6 +121,11 @@
         privateNetwork = true;
         hostAddress = "192.168.1.103";
         localAddress = "192.168.2.2";
+        bindMounts = {
+            "/main/media" = {
+                isReadOnly = true;
+            };
+        };
         config = { config, pkgs, lib, ... }: {
             system.stateVersion = "24.11";
             environment.defaultPackages = [];
@@ -137,6 +141,8 @@
             };
         };
     };
+
+    hardware.enableRedistributableFirmware = true;
 
     # Never change for a system unless completely reset.
     system.stateVersion = "24.11";
