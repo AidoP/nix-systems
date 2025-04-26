@@ -19,17 +19,37 @@
     boot.loader.efi.canTouchEfiVariables = true;
 
     # Networking
-    networking.wireless.iwd.enable = true;
+    networking.wireless.iwd = {
+        enable = true;
+        settings = {
+            General = {
+                EnableNetworkConfiguration = false;
+            };
+            Network = {
+                EnableIPv6 = true;
+                NameResolvingService = "systemd";
+            };
+            Settings = {
+                AutoConnect = true;
+            };
+        };
+    };
     networking.useNetworkd = true;
     systemd.network = {
         enable = true;
         networks = {
             "10-basic" = {
-                matchConfig.Name = "en* wlp* wlan*";
+                name = "en* wlp* wlan*";
+                dns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
                 networkConfig = {
+                    DNSOverTLS = "yes";
                     DHCP = "yes";
+                    MulticastDNS = "yes";
+                    LLMNR = "no";
                 };
-                linkConfig.RequiredForOnline = "no";
+                linkConfig = {
+                    RequiredForOnline = "yes";
+                };
             };
         };
     };
@@ -41,6 +61,7 @@
         domains = [ "~." ];
         fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
         dnsovertls = "true";
+        llmnr = "false";
     };
 
     # Localisation
@@ -60,12 +81,25 @@
     };
 
     # Packages to always install
-    environment.systemPackages = with pkgs; [
-        git
-        neovim
-        zsh
-    ];
+    environment.systemPackages = with pkgs; [];
     programs = {
+        git = {
+            enable = true;
+            config = {
+                init = {
+                    defaultBranch = "main";
+                };
+            };
+        };
+        neovim = {
+            enable = true;
+            defaultEditor = true;
+            withRuby = false;
+            withPython3 = false;
+            withNodeJs = false;
+            vimAlias = true;
+            viAlias = true;
+        };
         zsh = {
             enable = true;
         };
