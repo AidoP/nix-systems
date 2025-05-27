@@ -104,16 +104,32 @@
     },
     "nixos-stable": {
       "locked": {
-        "lastModified": 1745496781,
-        "narHash": "sha256-THhK01xd5uvHk5eagzRDSvb+tzXsB92Hmy9Qec4XiV4=",
+        "lastModified": 1748236772,
+        "narHash": "sha256-sdyLoESqEksbdupL0qG4Z2bBmic/VV8Jr9JBUSO1Xqs=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "48d97d2812b5e3ae7b4f9380a6028eb562a67cf0",
+        "rev": "18ada7115c55b825d77772e5165fc0a67c26c74a",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-24.11-small",
+        "ref": "nixos-25.05-small",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixos-unstable": {
+      "locked": {
+        "lastModified": 1748244669,
+        "narHash": "sha256-FLJC/Q0Ck73xhVWn0swwsFWDmwufHXYFtyWbbrXgU3Y=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e90345deff50af9cb5e75b20fda026a9c97b4e40",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable-small",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -159,6 +175,7 @@
     "root": {
       "inputs": {
         "nixos-stable": "nixos-stable",
+        "nixos-unstable": "nixos-unstable",
         "ragenix": "ragenix"
       }
     },

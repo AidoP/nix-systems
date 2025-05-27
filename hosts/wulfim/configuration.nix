@@ -9,7 +9,7 @@ in {
 
     hardware.enableRedistributableFirmware = true;
 
-    networking.hostId = "0ab002a94b134f88b6893b9a9d699004";
+    networking.hostId = "0ab002a9";
 
     users.users.aidop = {
         isNormalUser = true;
