@@ -4,10 +4,16 @@ in {
         ./hardware-configuration.nix
     ];
 
+    nixpkgs.config.allowUnfree = true;
+
     # Use latest kernel.
     boot.kernelPackages = pkgs.linuxPackages_latest;
 
     hardware.enableRedistributableFirmware = true;
+    hardware.graphics = {
+        enable = true;
+    };
+    services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 
     networking.hostId = "0ab002a9";
 
@@ -20,12 +26,50 @@ in {
     };
 
     environment.systemPackages = with pkgs; [
-        rustup
+        bitwarden-desktop
+	bitwarden-cli
+	displaylink
+	fd
+	firefox
+	lemurs
         llvmPackages_19.bintools
         llvmPackages_19.libcxxClang
         lld_19
+	gnupg
+	mako
         meson
+	noto-fonts
+	pinentry-curses
+	rbw
+	rofi-rbw-wayland
+	ripgrep
+        rustup
+	teams-for-linux
+	thunderbird
     ];
+
+    systemd.services.dlm.wantedBy = [ "multi-user.target" ];
+
+    services.gnome.gnome-keyring.enable = true;
+
+    programs.sway = {
+        enable = true;
+        wrapperFeatures.gtk = true;
+	extraPackages = with pkgs; [
+	    swaylock
+	    alacritty
+	    bemenu
+	    pinentry-bemenu
+	    j4-dmenu-desktop
+	    grim
+	];
+    };
+    programs.gnupg.agent = {
+        enable = true;
+	enableSSHSupport = true;
+	pinentryPackage = pkgs.pinentry-curses;
+    };
+    qt.style = "breeze";
 
 
     # Never change for a system unless completely reset.
