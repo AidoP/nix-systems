@@ -8,16 +8,17 @@
     outputs = inputs@{ nixos-stable, nixos-unstable, ragenix, ... }: {
         nixosConfigurations = builtins.mapAttrs (
             hostname:
-            value@{ ... }:
+            value@{ defguard-client, ... }:
             import ./hosts/${hostname} {
                 inherit nixos-stable;
                 inherit nixos-unstable;
                 inherit ragenix;
+                inherit defguard-client;
                 inherit hostname;
             }
         ) {
             "saifae" = { };
-            "wulfim" = { };
+            "wulfim" = { defguard-client = import ./packages/defguard-client; };
         };
     };
 }
