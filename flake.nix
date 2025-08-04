@@ -5,20 +5,24 @@
         nixos-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
         ragenix.url = "github:yaxitech/ragenix";
     };
-    outputs = inputs@{ nixos-stable, nixos-unstable, ragenix, ... }: {
+    outputs = inputs@{ nixos-stable, nixos-unstable, ragenix, ... }: 
+    let
+        extra = import ./extra;
+    in
+    {
         nixosConfigurations = builtins.mapAttrs (
             hostname:
-            value@{ defguard-client, ... }:
+            value@{ ... }:
             import ./hosts/${hostname} {
                 inherit nixos-stable;
                 inherit nixos-unstable;
+                inherit extra;
                 inherit ragenix;
-                inherit defguard-client;
                 inherit hostname;
             }
         ) {
-            "saifae" = { };
-            "wulfim" = { defguard-client = import ./packages/defguard-client; };
+            "saifae" = {};
+            "wulfim" = {};
         };
     };
 }

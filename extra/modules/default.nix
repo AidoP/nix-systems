@@ -1,0 +1,3 @@
+[
+    ./defguard-client.nix
+]

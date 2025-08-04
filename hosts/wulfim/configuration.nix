@@ -1,4 +1,5 @@
-{ config, lib, pkgs, defguard-client, ... }: let
+{ config, lib, pkgs, extra, ... }: let
+    extra-pkgs = extra.pkgs pkgs;
 in {
     imports = [
         ./hardware-configuration.nix
@@ -15,6 +16,10 @@ in {
     };
     services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 
+    services.defguard-client = {
+        enable = true;
+    };
+
     networking.hostId = "0ab002a9";
 
     users.users.aidop = {
@@ -28,7 +33,7 @@ in {
     environment.systemPackages = with pkgs; [
         bitwarden-desktop
         bitwarden-cli
-        defguard-client
+        extra-pkgs.defguard-client
         displaylink
         fd
         firefox
