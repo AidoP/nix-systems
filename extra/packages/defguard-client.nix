@@ -36,7 +36,6 @@ rustPlatform.buildRustPackage rec {
         fetchSubmodules = true;
     };
 
-    useFetchCargoVendor = true;
     cargoHash = "sha256-VN6ALg/67KNzmlEG/v5eeVxdooYPQUg2P7cUvkhfb60=";
 
     # Set our Tauri source directory
@@ -47,7 +46,7 @@ rustPlatform.buildRustPackage rec {
     pnpmDeps = pnpm_9.fetchDeps {
         inherit pname src version;
         fetcherVersion = 2;
-        hash = "sha256-jevWgJ5fbye8s8OLiljxkaJL5pvCULh3lwcMK6oIY1E=";
+        hash = "sha256-6kKGmqxnAbmWOKmzHhGeHWn0Vje7VN+I963NLEE6jhM=";
     };
 
     # Fix the bundle referring to the incorrect build output directory

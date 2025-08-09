@@ -1,4 +1,4 @@
-{ pkgs, hostname, ... }: {
+{ lib, pkgs, hostname, ... }: {
     networking.hostName = hostname;
 
     # Lock root
@@ -42,7 +42,7 @@
                 name = "en* wlp* wlan*";
                 dns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
                 networkConfig = {
-                    DNSOverTLS = "yes";
+                    # DNSOverTLS = "yes";
                     DHCP = "yes";
                     MulticastDNS = "yes";
                     LLMNR = "no";
@@ -58,9 +58,9 @@
     services.resolved = {
         enable = true;
         dnssec = "true";
-        domains = [ "~." ];
+        #domains = [ "~." ];
         fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
-        dnsovertls = "true";
+        dnsovertls = lib.mkDefault "true";
         llmnr = "false";
     };
 
@@ -102,7 +102,7 @@
         };
         zsh = {
             enable = true;
-	    interactiveShellInit = builtins.readFile ./config/zshrc;
+            interactiveShellInit = builtins.readFile ./config/zshrc;
 # 	    ''# Prompt
 # PS1='thinkpad %~ %#'
 # RPS1='returned %?'

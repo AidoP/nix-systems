@@ -1,11 +1,20 @@
-{ config, lib, pkgs, extra, ... }: let
-    extra-pkgs = extra.pkgs pkgs;
+values@{ config, lib, pkgs, local-pkgs, ... }: let
+    local-pkgs = values.local-pkgs pkgs;
 in {
     imports = [
         ./hardware-configuration.nix
     ];
 
-    nixpkgs.config.allowUnfree = true;
+    nixpkgs.config = {
+        allowUnfree = true;
+        permittedInsecurePackages = [
+            "libsoup-2.74.3"
+        ];
+    };
+
+    # home-manager.users.aidop = {
+    #     home.stateVersion = "25.05";
+    # };
 
     # Use latest kernel.
     boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -16,9 +25,29 @@ in {
     };
     services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 
-    services.defguard-client = {
+    services.defguard-service = {
         enable = true;
+        # package = local-pkgs.defguard-client;
     };
+    services.resolved = {
+        dnsovertls = "opportunistic";
+    };
+    # systemd.network = {
+    #     networks = {
+    #         "20-vpn" = {
+    #             name = "wg*";
+    #             networkConfig = {
+    #                 DNSOverTLS = "no";
+    #                 DHCP = "yes";
+    #                 MulticastDNS = "yes";
+    #                 LLMNR = "no";
+    #             };
+    #             linkConfig = {
+    #                 RequiredForOnline = "no";
+    #             };
+    #         };
+    #     };
+    # };
 
     networking.hostId = "0ab002a9";
 
@@ -31,9 +60,9 @@ in {
     };
 
     environment.systemPackages = with pkgs; [
+        dig
         bitwarden-desktop
         bitwarden-cli
-        extra-pkgs.defguard-client
         displaylink
         fd
         firefox
@@ -57,11 +86,11 @@ in {
 
     # services.displayManager.lemurs = {
     #     enable = true;
+    #     vt = 1;
     #     settings = {
     #
     #     };
     # };
-    #
     services.gnome.gnome-keyring.enable = true;
 
     programs.sway = {

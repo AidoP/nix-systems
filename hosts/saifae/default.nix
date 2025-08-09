@@ -1,4 +1,4 @@
-{ nixos-stable, ragenix, hostname, ... }:  nixos-stable.lib.nixosSystem {
+{ nixos, ragenix, hostname, ... }:  nixos.lib.nixosSystem {
     system = "x86_64-linux";
     specialArgs = {
         inherit hostname;
