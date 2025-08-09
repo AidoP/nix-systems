@@ -1,46 +1,62 @@
 {
     description = "NixOS Full Configuration";
     inputs = {
-        extra.url = "./extra";
-        home-manager = {
-            url = "github:nix-community/home-manager";
-            inputs.nixpkgs.follows = "nixpkgs-unstable";
+        extra = {
+            url = "git+file:.?dir=extra";
+            # inputs.nixpkgs.follows = "nixpkgs-unstable";
         };
+        # home-manager = {
+        #     url = "github:nix-community/home-manager";
+        #     inputs.nixpkgs.follows = "nixpkgs-unstable";
+        # };
         nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05-small";
         nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
         ragenix.url = "github:yaxitech/ragenix";
     };
     outputs = inputs@{
-        # home-manager,
+        extra,
         nixpkgs-stable,
         nixpkgs-unstable,
         ragenix,
         ...
-    }: let
-        local-pkgs = import ./packages;
-    in {
+    }: {
         nixosConfigurations = builtins.mapAttrs (
             hostname:
             values@{
                 nixpkgs,
+                system,
+                modules,
                 ...
             }: nixpkgs.lib.nixosSystem {
-                system = "x86_64-linux";
+                inherit system;
                 specialArgs = {
-                    inherit hostname local-pkgs;
+                    inherit hostname;
                 };
                 modules = [
+                    ./secrets/${hostname}.nix
                     ./hosts/${hostname}/configuration.nix
                     ./hosts/common.nix
+                    ragenix.nixosModules.default
                         # home-manager.nixosModules.home-manager
-                ] ++ import ./modules;
+                    ({ pkgs, ... }: {
+                        nixpkgs.overlays = [
+                            extra.overlays.default
+                        ];
+                    })
+                ] ++modules;
             }
         ) {
             "saifae" = {
+                system = "x86_64-linux";
                 nixpkgs = nixpkgs-stable;
+                modules = [];
             };
             "wulfim" = {
+                system = "x86_64-linux";
                 nixpkgs = nixpkgs-unstable;
+                modules = [
+                    extra.nixosModules.defguard-client
+                ];
             };
         };
     };

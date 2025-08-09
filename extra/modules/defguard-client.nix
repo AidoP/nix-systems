@@ -19,9 +19,6 @@ in {
         };
     };
     config = mkIf cfg.enable {
-        environment.systemPackages = with pkgs; [
-            iproute2
-        ];
         systemd.services.defguard-service = {
             description = "Defguard interface daemon service";
             after = [ "network-online.target" ];

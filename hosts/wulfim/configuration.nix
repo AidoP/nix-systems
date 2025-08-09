@@ -1,6 +1,4 @@
-values@{ config, lib, pkgs, local-pkgs, ... }: let
-    local-pkgs = values.local-pkgs pkgs;
-in {
+{ config, lib, pkgs, ... }: {
     imports = [
         ./hardware-configuration.nix
     ];
@@ -26,8 +24,8 @@ in {
     services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 
     services.defguard-service = {
-        enable = true;
-        # package = local-pkgs.defguard-client;
+        # enable = true;
+        package = pkgs.defguard-client;
     };
     services.resolved = {
         dnsovertls = "opportunistic";
@@ -61,6 +59,7 @@ in {
 
     environment.systemPackages = with pkgs; [
         dig
+        defguard-client
         bitwarden-desktop
         bitwarden-cli
         displaylink

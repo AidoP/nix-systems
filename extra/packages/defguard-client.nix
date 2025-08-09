@@ -18,7 +18,6 @@
     jq,
     webkitgtk_4_0,
     wrapGAppsHook4,
-    breakpointHook,
 
     # The subdirectory of `target/` from which to copy the build artifacts
     targetSubdirectory ? stdenv.hostPlatform.rust.cargoShortTarget,
