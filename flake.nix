@@ -2,61 +2,76 @@
     description = "NixOS Full Configuration";
     inputs = {
         extra = {
-            url = "git+file:.?dir=extra";
+            url = "./extra";
             # inputs.nixpkgs.follows = "nixpkgs-unstable";
         };
-        # home-manager = {
-        #     url = "github:nix-community/home-manager";
-        #     inputs.nixpkgs.follows = "nixpkgs-unstable";
-        # };
+        home-manager = {
+            url = "github:nix-community/home-manager";
+            inputs.nixpkgs.follows = "nixpkgs-unstable";
+        };
         nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05-small";
         nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
         ragenix.url = "github:yaxitech/ragenix";
     };
     outputs = inputs@{
         extra,
+        home-manager,
         nixpkgs-stable,
         nixpkgs-unstable,
         ragenix,
         ...
-    }: {
-        nixosConfigurations = builtins.mapAttrs (
-            hostname:
-            values@{
-                nixpkgs,
-                system,
-                modules,
-                ...
-            }: nixpkgs.lib.nixosSystem {
-                inherit system;
-                specialArgs = {
-                    inherit hostname;
-                };
-                modules = [
-                    ./secrets/${hostname}.nix
-                    ./hosts/${hostname}/configuration.nix
-                    ./hosts/common.nix
-                    ragenix.nixosModules.default
-                        # home-manager.nixosModules.home-manager
-                    ({ pkgs, ... }: {
-                        nixpkgs.overlays = [
-                            extra.overlays.default
-                        ];
-                    })
-                ] ++modules;
-            }
-        ) {
-            "saifae" = {
+    }: let 
+        makeNixosConfiguration = values@{
+            hostname,
+            nixpkgs,
+            system,
+            modules,
+            users,
+            ...
+        }: nixpkgs.lib.nixosSystem {
+            inherit system;
+            specialArgs = {
+                inherit hostname;
+            };
+            modules = [
+                ./secrets/${hostname}.nix
+                ./hosts/${hostname}/configuration.nix
+                ./hosts/common.nix
+                ragenix.nixosModules.default
+                ({ pkgs, ... }: {
+                    nixpkgs.overlays = [
+                        extra.overlays.default
+                    ];
+                })
+                home-manager.nixosModules.home-manager
+                {
+                    home-manager.useUserPackages = true;
+                    home-manager.useGlobalPkgs = true;
+                    home-manager.users = users;
+                }
+            ] ++modules;
+        };
+        aidop = import ./user/aidop;
+    in {
+        nixosConfigurations = {
+            saifae = makeNixosConfiguration {
+                hostname = "saifae";
                 system = "x86_64-linux";
                 nixpkgs = nixpkgs-stable;
                 modules = [];
+                users = {};
             };
-            "wulfim" = {
+            wulfim = makeNixosConfiguration {
+                hostname = "wulfim";
                 system = "x86_64-linux";
                 nixpkgs = nixpkgs-unstable;
                 modules = [
                     extra.nixosModules.defguard-client
+                    aidop.module
                 ];
+                users = {
+                    aidop = import aidop.home;
+                };
             };
         };
     };

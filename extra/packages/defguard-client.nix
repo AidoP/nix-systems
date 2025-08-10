@@ -5,7 +5,9 @@
     glib-networking,
     gtk3,
     lib,
+    libsoup_2_4,
     libayatana-appindicator,
+    webkitgtk_4_0,
     moreutils,
     nodejs,
     perl,
@@ -16,7 +18,6 @@
     rustPlatform,
     stdenv,
     jq,
-    webkitgtk_4_0,
     wrapGAppsHook4,
 
     # The subdirectory of `target/` from which to copy the build artifacts
@@ -42,6 +43,8 @@ rustPlatform.buildRustPackage rec {
     # And make sure we build there too
     buildAndTestSubdir = cargoRoot;
 
+    OPENSSL_NO_VENDOR = true;
+
     pnpmDeps = pnpm_9.fetchDeps {
         inherit pname src version;
         fetcherVersion = 2;
@@ -61,7 +64,7 @@ rustPlatform.buildRustPackage rec {
         # Pull in our main hook
         cargo-tauri_1.hook
 
-        perl
+        # perl
         jq
         moreutils
 
@@ -79,8 +82,9 @@ rustPlatform.buildRustPackage rec {
     buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
         glib-networking # Most Tauri apps need networking
         openssl
-        webkitgtk_4_0
         libayatana-appindicator
+        libsoup_2_4
+        webkitgtk_4_0
     ] ++ lib.optionals stdenv.hostPlatform.isLinux [
         gtk3
     ];

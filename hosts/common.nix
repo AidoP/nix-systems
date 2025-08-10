@@ -81,7 +81,13 @@
     };
 
     # Packages to always install
-    environment.systemPackages = with pkgs; [];
+    environment.systemPackages = with pkgs; [
+        bat
+        fd
+        hexyl
+        ripgrep
+        dig
+    ];
     programs = {
         git = {
             enable = true;

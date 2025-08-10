@@ -6,7 +6,6 @@
     outputs = {
         self,
         nixpkgs,
-        nix,
         ...
     }: let
         systems = [
@@ -25,6 +24,7 @@
     in {
         overlays.default = final: prev: {
             defguard-client = final.callPackage ./packages/defguard-client.nix {};
+            defguard-cli = final.callPackage ./packages/defguard-cli.nix {};
         };
         packages = forEachSystem (system: {
             defguard-client = pkgsBySystem.${system}.defguard-client;

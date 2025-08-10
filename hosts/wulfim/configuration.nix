@@ -1,4 +1,49 @@
-{ config, lib, pkgs, ... }: {
+{ config, lib, pkgs, ... }: let
+    sshHosts = [
+        {
+            alias = "a1";
+            host = "pthbra1.21csw.com.au";
+            user = "aidanp";
+            mountpoint = "/mf/a1";
+            userDir = "/BRA1/u/aidanp";
+        }
+        {
+            alias = "d1";
+            host = "pthekd1.21csw.com.au";
+            user = "aidanp";
+            mountpoint = "/mf/d1";
+            userDir = "/EKD1/u/aidanp";
+        }
+        {
+            alias = "d2";
+            host = "pthekd2.21csw.com.au";
+            user = "aidanp";
+            mountpoint = "/mf/d2";
+            userDir = "/EKD2/u/aidanp";
+        }
+        {
+            alias = "d3";
+            host = "pthekd3.21csw.com.au";
+            user = "aidanp";
+            mountpoint = "/mf/d3";
+            userDir = "/EKD3/u/aidanp";
+        }
+        {
+            alias = "k1";
+            host = "pthsok1.21csw.com.au";
+            user = "aidanp";
+            mountpoint = "/mf/k1";
+            userDir = "/u/aidanp";
+        }
+        {
+            alias = "n1";
+            host = "pthtrn1.21csw.com.au";
+            user = "aidanp";
+            mountpoint = "/mf/n1";
+            userDir = "/u/aidanp";
+        }
+    ];
+in {
     imports = [
         ./hardware-configuration.nix
     ];
@@ -10,9 +55,10 @@
         ];
     };
 
-    # home-manager.users.aidop = {
-    #     home.stateVersion = "25.05";
-    # };
+    home.users.aidop = {
+        inherit sshHosts;
+        email = "aidan.prangnell@21cs.com";
+    };
 
     # Use latest kernel.
     boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -24,8 +70,7 @@
     services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 
     services.defguard-service = {
-        # enable = true;
-        package = pkgs.defguard-client;
+        enable = true;
     };
     services.resolved = {
         dnsovertls = "opportunistic";
@@ -49,36 +94,35 @@
 
     networking.hostId = "0ab002a9";
 
-    users.users.aidop = {
-        isNormalUser = true;
-        extraGroups = [ "wheel" "seat" ];
-        shell = pkgs.zsh;
-        home = "/home/aidop";
-        openssh.authorizedKeys.keys = [];
-    };
-
     environment.systemPackages = with pkgs; [
-        dig
-        defguard-client
-        bitwarden-desktop
         bitwarden-cli
+        bitwarden-desktop
+        defguard-client
         displaylink
-        fd
         firefox
+        fzf
+        gnumake
+        gnupg
+        lld_19
         llvmPackages_19.bintools
         llvmPackages_19.libcxxClang
-        lld_19
-        gnupg
         mako
         meson
-        noto-fonts
         pinentry-curses
         rbw
         rofi-rbw-wayland
-        ripgrep
         rustup
         teams-for-linux
         thunderbird
+        wl-clipboard
+    ];
+
+    fonts.packages = with pkgs; [
+        noto-fonts
+        noto-fonts-cjk-sans
+        noto-fonts-emoji
+        # nerd-fonts.fira-code
+        nerd-fonts.noto
     ];
 
     systemd.services.dlm.wantedBy = [ "multi-user.target" ];
@@ -110,7 +154,6 @@
         pinentryPackage = pkgs.pinentry-curses;
     };
     qt.style = "breeze";
-
 
     # Never change for a system unless completely reset.
     system.stateVersion = "25.05";

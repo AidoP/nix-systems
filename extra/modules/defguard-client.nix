@@ -1,4 +1,4 @@
-values@{
+{
     lib ? pkgs.lib,
     config,
     pkgs,
