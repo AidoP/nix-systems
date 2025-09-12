@@ -23,8 +23,18 @@ in {
                             alias = mkOption { type = types.str; };
                             host = mkOption { type = types.str; };
                             user = mkOption { type = types.str; };
-                            mountpoint = mkOption { type = types.str; };
+                            mountpoint = mkOption { type = types.str; default = ""; };
                             userDir = mkOption { type = types.str; default = "/"; };
+                            forwardAgent = mkOption { type = types.bool; default = false; };
+                            c3270 = mkOption {
+                                type = types.submodule {
+                                    options = {
+                                        enable = mkOption { type = types.bool; default = false; };
+                                        loginMacro = mkOption { type = types.str; };
+                                        codepage = mkOption { type = types.str; default = "cp1047"; };
+                                    };
+                                };
+                            };
                         };
                     }
                 );
@@ -38,7 +48,13 @@ in {
             };
         };
     };
-    config = {
+    config = let
+        sshHostsWithMounts = builtins.filter ({mountpoint, ...}: mountpoint != "") cfg.sshHosts;
+    in {
+
+        environment.systemPackages = with pkgs; [
+            devenv
+        ];
 
         users.users.aidop = {
             isNormalUser = true;
@@ -66,23 +82,28 @@ in {
                 exec ${pkgs.sudo}/bin/sudo -i -u "$user" ${pkgs.openssh}/bin/ssh "$@"
             '';
             options = [
+                "_netdev"
+                "noauto"
                 "user"
+                "idmap=user"
+                "transform_symlinks"
                 "uid=aidop"
                 "gid=users"
                 "allow_other"
                 "noexec"
                 "noatime"
                 "nosuid"
-                "_netdev"
                 "ssh_command=${sshAsUser}\\040aidop"
-                "noauto"
                 "x-gvfs-hide"
                 "x-systemd.automount"
-                #"Compression=yes" # YMMV
+                "Compression=yes" # YMMV
                 # Disconnect approximately 2*15=30 seconds after a network failure
                 "ServerAliveCountMax=1"
                 "ServerAliveInterval=15"
-                "dir_cache=no"
+                "dir_cache=yes"
+                "dcache_timeout=60"
+                "dcache_stat_timeout=5"
+                "max_conns=2"
                 "reconnect"
             ];
         in builtins.listToAttrs (
@@ -93,11 +114,14 @@ in {
                     fsType = "fuse";
                     inherit options;
                 };
-            }) cfg.sshHosts
+            }) sshHostsWithMounts
         );
         systemd.automounts = builtins.map ({alias, mountpoint, ...}: {
             where = mountpoint;
+            wants = [
+                "multi-user.target"
+            ];
             automountConfig.TimeoutIdleSec = "5 min";
-        }) cfg.sshHosts;
+        }) sshHostsWithMounts;
     };
 }

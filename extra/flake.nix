@@ -24,10 +24,12 @@
     in {
         overlays.default = final: prev: {
             defguard-client = final.callPackage ./packages/defguard-client.nix {};
+            doc-index = final.callPackage ./packages/doc-index/default.nix {};
             defguard-cli = final.callPackage ./packages/defguard-cli.nix {};
         };
         packages = forEachSystem (system: {
             defguard-client = pkgsBySystem.${system}.defguard-client;
+            doc-index = pkgsBySystem.${system}.doc-index;
             # default = pkgsBySystem.${system}.simple-go-server;
         });
         nixosModules = import ./modules {

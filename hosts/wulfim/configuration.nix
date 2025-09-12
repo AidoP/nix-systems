@@ -6,6 +6,10 @@
             user = "aidanp";
             mountpoint = "/mf/a1";
             userDir = "/BRA1/u/aidanp";
+            c3270 = {
+                enable = true;
+                loginMacro = "String(\"TSO AIDANP\") Enter()";
+            };
         }
         {
             alias = "d1";
@@ -13,6 +17,11 @@
             user = "aidanp";
             mountpoint = "/mf/d1";
             userDir = "/EKD1/u/aidanp";
+            forwardAgent = true;
+            c3270 = {
+                enable = true;
+                loginMacro = "String(\"TSO AIDANP\") Enter()";
+            };
         }
         {
             alias = "d2";
@@ -20,6 +29,11 @@
             user = "aidanp";
             mountpoint = "/mf/d2";
             userDir = "/EKD2/u/aidanp";
+            forwardAgent = true;
+            c3270 = {
+                enable = true;
+                loginMacro = "String(\"TSO AIDANP\") Enter()";
+            };
         }
         {
             alias = "d3";
@@ -27,6 +41,11 @@
             user = "aidanp";
             mountpoint = "/mf/d3";
             userDir = "/EKD3/u/aidanp";
+            forwardAgent = true;
+            c3270 = {
+                enable = true;
+                loginMacro = "String(\"TSO AIDANP\") Enter()";
+            };
         }
         {
             alias = "k1";
@@ -34,13 +53,32 @@
             user = "aidanp";
             mountpoint = "/mf/k1";
             userDir = "/u/aidanp";
+            c3270 = {
+                enable = true;
+                loginMacro = "String(\"TSO AIDANP\") Enter()";
+            };
         }
         {
             alias = "n1";
             host = "pthtrn1.21csw.com.au";
             user = "aidanp";
-            mountpoint = "/mf/n1";
+            # mountpoint = "/mf/n1";
             userDir = "/u/aidanp";
+            c3270 = {
+                enable = true;
+                loginMacro = "String(\"TSO AIDANP\") Enter()";
+            };
+        }
+        {
+            alias = "tdmb";
+            host = "pthtdmb.21csw.com.au";
+            user = "aidanp";
+            # mountpoint = "/mf/tdmb";
+            userDir = "/u/aidanp";
+            c3270 = {
+                enable = true;
+                loginMacro = "String(\"TSO\") Enter() String(\"AIDANP\") Enter()";
+            };
         }
     ];
 in {
@@ -68,6 +106,16 @@ in {
         enable = true;
     };
     services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
+
+    hardware.bluetooth = {
+        enable = true;
+        powerOnBoot = true;
+        settings = {
+            Policy = {
+                AutoEnable = true;
+            };
+        };
+    };
 
     services.defguard-service = {
         enable = true;
@@ -97,18 +145,24 @@ in {
     environment.systemPackages = with pkgs; [
         bitwarden-cli
         bitwarden-desktop
+        bluetui
+        x3270
         defguard-client
         displaylink
+        doc-index
         firefox
         fzf
         gnumake
         gnupg
-        lld_19
-        llvmPackages_19.bintools
-        llvmPackages_19.libcxxClang
+        lld_20
+        llvmPackages_20.libcxxStdenv
+        llvmPackages_20.bintools
+        llvmPackages_20.libcxxClang
+        llvmPackages_20.libcxx
         mako
         meson
         pinentry-curses
+        python3
         rbw
         rofi-rbw-wayland
         rustup
@@ -125,7 +179,7 @@ in {
         nerd-fonts.noto
     ];
 
-    systemd.services.dlm.wantedBy = [ "multi-user.target" ];
+    # systemd.services.dlm.wantedBy = [ "multi-user.target" ];
 
     # services.displayManager.lemurs = {
     #     enable = true;
@@ -146,6 +200,7 @@ in {
             pinentry-bemenu
             j4-dmenu-desktop
             grim
+            slurp
         ];
     };
     programs.gnupg.agent = {
