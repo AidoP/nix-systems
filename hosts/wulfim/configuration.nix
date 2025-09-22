@@ -146,6 +146,7 @@ in {
         bitwarden-cli
         bitwarden-desktop
         bluetui
+        clang-tools
         x3270
         defguard-client
         displaylink

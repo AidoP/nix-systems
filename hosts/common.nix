@@ -80,13 +80,20 @@
         LC_TIME = "ja_JP.UTF-8";
     };
 
+    documentation = {
+        dev.enable = true;
+        man.generateCaches = true;
+    };
+
     # Packages to always install
     environment.systemPackages = with pkgs; [
         bat
+        dig
         fd
         hexyl
+        man-pages
+        man-pages-posix
         ripgrep
-        dig
     ];
     programs = {
         git = {
