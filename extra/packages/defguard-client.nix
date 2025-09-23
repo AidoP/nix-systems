@@ -1,13 +1,13 @@
 {
-    cargo-tauri_1,
+    cargo-tauri,
     fetchFromGitHub,
     fetchNpmDeps,
     glib-networking,
     gtk3,
     lib,
-    libsoup_2_4,
+    libsoup_3,
     libayatana-appindicator,
-    webkitgtk_4_0,
+    webkitgtk_4_1,
     moreutils,
     nodejs,
     perl,
@@ -19,6 +19,7 @@
     stdenv,
     jq,
     wrapGAppsHook4,
+breakpointHook,
 
     # The subdirectory of `target/` from which to copy the build artifacts
     targetSubdirectory ? stdenv.hostPlatform.rust.cargoShortTarget,
@@ -26,20 +27,21 @@
 
 rustPlatform.buildRustPackage rec {
     pname = "defguard-client";
-    version = "1.4.0";
+    version = "1.5.0";
 
     src = fetchFromGitHub {
         owner = "DefGuard";
         repo = "client";
         tag = "v${version}";
-        hash = "sha256-iV1fOwzmdrRsGt58JKqSOBZYgkqrP4aDt/2Uvkk7xbc=";
+        hash = "sha256-TtccRImrywAUjvaAjHiOG6SBZ5Mgm6ksfJypN4hjS64=";
         fetchSubmodules = true;
     };
 
-    cargoHash = "sha256-VN6ALg/67KNzmlEG/v5eeVxdooYPQUg2P7cUvkhfb60=";
+    cargoHash = "sha256-KNSGf05ShZ9JAzxx+c5/n3pJSm/Uum2F59Sr0B8oCF4=";
 
     # Set our Tauri source directory
     cargoRoot = "src-tauri";
+    buildType = "debug";
     # And make sure we build there too
     buildAndTestSubdir = cargoRoot;
 
@@ -48,13 +50,13 @@ rustPlatform.buildRustPackage rec {
     pnpmDeps = pnpm_9.fetchDeps {
         inherit pname src version;
         fetcherVersion = 2;
-        hash = "sha256-6kKGmqxnAbmWOKmzHhGeHWn0Vje7VN+I963NLEE6jhM=";
+        hash = "sha256-7o3zziR3KPr/sguZTCWunMws3ME+aPB2jNsjgU0yYaU=";
     };
 
     # Fix the bundle referring to the incorrect build output directory
     postPatch = ''
         tauriConf="src-tauri/tauri.conf.json"
-        jq '.tauri.bundle.deb.files."/usr/sbin/defguard-service" = "../target/${targetSubdirectory}/release/defguard-service"' "$tauriConf" | sponge "$tauriConf"
+        jq '.bundle.linux.deb.files."/usr/sbin/defguard-service" = "../target/${targetSubdirectory}/${buildType}/defguard-service" | .bundle.linux.rpm.files."/usr/sbin/defguard-service" = "../target/${targetSubdirectory}/${buildType}/defguard-service"' "$tauriConf" | sponge "$tauriConf"
 
         substituteInPlace $cargoDepsCopy/libappindicator-sys-*/src/lib.rs \
             --replace "libayatana-appindicator3.so.1" "${libayatana-appindicator}/lib/libayatana-appindicator3.so.1"
@@ -62,7 +64,7 @@ rustPlatform.buildRustPackage rec {
 
     nativeBuildInputs = [
         # Pull in our main hook
-        cargo-tauri_1.hook
+        cargo-tauri.hook
 
         # perl
         jq
@@ -83,8 +85,8 @@ rustPlatform.buildRustPackage rec {
         glib-networking # Most Tauri apps need networking
         openssl
         libayatana-appindicator
-        libsoup_2_4
-        webkitgtk_4_0
+        libsoup_3
+        webkitgtk_4_1
     ] ++ lib.optionals stdenv.hostPlatform.isLinux [
         gtk3
     ];

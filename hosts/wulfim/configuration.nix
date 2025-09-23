@@ -62,7 +62,7 @@
             alias = "n1";
             host = "pthtrn1.21csw.com.au";
             user = "aidanp";
-            # mountpoint = "/mf/n1";
+            mountpoint = "/mf/n1";
             userDir = "/u/aidanp";
             c3270 = {
                 enable = true;
@@ -117,9 +117,6 @@ in {
         };
     };
 
-    services.defguard-service = {
-        enable = true;
-    };
     services.resolved = {
         dnsovertls = "opportunistic";
     };
@@ -142,6 +139,8 @@ in {
 
     networking.hostId = "0ab002a9";
 
+    #programs.defguard-client.enable = true;
+
     environment.systemPackages = with pkgs; [
         bitwarden-cli
         bitwarden-desktop
@@ -163,12 +162,14 @@ in {
         mako
         meson
         pinentry-curses
+        pulsemixer
         python3
         rbw
         rofi-rbw-wayland
         rustup
         teams-for-linux
         thunderbird
+        typescript-language-server
         wl-clipboard
     ];
 

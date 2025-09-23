@@ -1,9 +1,11 @@
 {
     description = "NixOS Full Configuration";
     inputs = {
+        defguard.url = "git+https://github.com/DefGuard/client?submodules=1&ref=4290cce2d17656936270b3512ece78f6b8c10374k";
         extra = {
             url = "./extra";
             # inputs.nixpkgs.follows = "nixpkgs-unstable";
+            inputs.defguard.follows = "defguard";
         };
         home-manager = {
             url = "github:nix-community/home-manager";
