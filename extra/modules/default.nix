@@ -1,9 +1,9 @@
-{ overlays }: {
+{ overlays, defguard }: {
     overlayNixpkgsForThisInstance = { pkgs, ... }: {
         nixpkgs = {
             inherit overlays;
         };
     };
 
-    defguard-client = import ./defguard-client.nix;
+    defguard-client = defguard.nixosModules.default;
 }

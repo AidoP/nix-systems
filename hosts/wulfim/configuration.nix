@@ -147,7 +147,6 @@ in {
         bluetui
         clang-tools
         x3270
-        defguard-client
         displaylink
         doc-index
         firefox

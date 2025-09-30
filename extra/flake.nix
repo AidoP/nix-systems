@@ -24,18 +24,21 @@
         });
     in {
         overlays.default = final: prev: {
+                #defguard-client = defguard.packages.default;
                 #defguard-client = final.callPackage ./packages/defguard-client.nix {};
             doc-index = final.callPackage ./packages/doc-index/default.nix {};
                 #defguard-cli = final.callPackage ./packages/defguard-cli.nix {};
         };
-        packages = forEachSystem (system: {
-                #defguard-client = pkgsBySystem.${system}.defguard-client;
-            doc-index = pkgsBySystem.${system}.doc-index;
-                #defguard = defguard.${system}.default;
-            # default = pkgsBySystem.${system}.simple-go-server;
-        });
+        # packages = forEachSystem (system: {
+        #     defguard-client = defguard.packages.${system}.default;
+        #         #defguard-client = pkgsBySystem.${system}.defguard-client;
+        #     doc-index = pkgsBySystem.${system}.doc-index;
+        #         #defguard = defguard.${system}.default;
+        #     # default = pkgsBySystem.${system}.simple-go-server;
+        # });
         nixosModules = import ./modules {
+                inherit defguard;
             overlays = overlayList;
-        } // defguard.nixosModules.default;
+        };
     };
 }
