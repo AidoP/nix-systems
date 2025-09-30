@@ -35,8 +35,7 @@ in {
 
     programs.ssh = {
         enable = true;
-        serverAliveInterval = 240;
-        hashKnownHosts = true;
+        enableDefaultConfig = false;
         matchBlocks = builtins.listToAttrs (
             builtins.map ({alias, host, user, forwardAgent, ...}: {
                 name = alias;
@@ -45,7 +44,12 @@ in {
                     hostname = host;
                 };
             }) cfg.sshHosts
-        );
+        ) // {
+            "*" = {
+                hashKnownHosts = true;
+                serverAliveInterval = 240;
+            };
+        };
     };
 
     home.file = builtins.listToAttrs (
@@ -70,5 +74,27 @@ in {
         }) (builtins.filter ({c3270, ...}: c3270.enable) cfg.sshHosts)
     ) // {
 
+    };
+
+    wayland.windowManager.sway = (import ./sway.nix { inherit config; });
+
+    xdg.configFile.nvim = {
+        enable = true;
+        recursive = true;
+        source = pkgs.stdenv.mkDerivation rec {
+            pname = "nvim-config";
+            version = "2eef80eaaab176796f25374608882c34bbf92b82";
+            src = pkgs.fetchFromGitHub {
+                owner = "AidoP";
+                repo = pname;
+                rev = version;
+                hash = "sha256-0LpPuU05v4W6qBmpWIe3ObwkUozXJavZfq7xoMw98uI=";
+            };
+            buildPhase = "";
+            installPhase = ''
+                mkdir -p "$out"
+                cp -r lua/ init.lua lazy-lock.json "$out"
+            '';
+        };
     };
 }
