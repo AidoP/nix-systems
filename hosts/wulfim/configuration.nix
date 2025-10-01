@@ -4,7 +4,7 @@
             alias = "a1";
             host = "pthbra1.21csw.com.au";
             user = "aidanp";
-            mountpoint = "/mf/a1";
+            # mountpoint = "/mf/a1";
             userDir = "/BRA1/u/aidanp";
             c3270 = {
                 enable = true;
@@ -15,7 +15,7 @@
             alias = "d1";
             host = "pthekd1.21csw.com.au";
             user = "aidanp";
-            mountpoint = "/mf/d1";
+            # mountpoint = "/mf/d1";
             userDir = "/EKD1/u/aidanp";
             forwardAgent = true;
             c3270 = {
@@ -27,7 +27,7 @@
             alias = "d2";
             host = "pthekd2.21csw.com.au";
             user = "aidanp";
-            mountpoint = "/mf/d2";
+            # mountpoint = "/mf/d2";
             userDir = "/EKD2/u/aidanp";
             forwardAgent = true;
             c3270 = {
@@ -39,7 +39,7 @@
             alias = "d3";
             host = "pthekd3.21csw.com.au";
             user = "aidanp";
-            mountpoint = "/mf/d3";
+            # mountpoint = "/mf/d3";
             userDir = "/EKD3/u/aidanp";
             forwardAgent = true;
             c3270 = {
@@ -51,7 +51,7 @@
             alias = "k1";
             host = "pthsok1.21csw.com.au";
             user = "aidanp";
-            mountpoint = "/mf/k1";
+            # mountpoint = "/mf/k1";
             userDir = "/u/aidanp";
             c3270 = {
                 enable = true;
@@ -62,7 +62,7 @@
             alias = "n1";
             host = "pthtrn1.21csw.com.au";
             user = "aidanp";
-            mountpoint = "/mf/n1";
+            # mountpoint = "/mf/n1";
             userDir = "/u/aidanp";
             c3270 = {
                 enable = true;
@@ -89,7 +89,7 @@ in {
     nixpkgs.config = {
         allowUnfree = true;
         permittedInsecurePackages = [
-            "libsoup-2.74.3"
+            # "libsoup-2.74.3"
         ];
     };
 
@@ -100,12 +100,32 @@ in {
 
     # Use latest kernel.
     boot.kernelPackages = pkgs.linuxPackages_latest;
+    boot.initrd = {
+        systemd = {
+            enable = true;
+            tpm2.enable = true;
+        };
+        luks.devices.cryptroot = {
+            device = "/dev/disk/by-uuid/6ec70506-da7e-496d-b997-141d1886133e";
+            crypttabExtraOpts = [ "tpm2-device=auto" "tpm2-measure-pcr=yes" ];
+        };
+        kernelModules = [ "amdgpu" "cryptd" "dm-snapshot" "evdi"];
+    };
+    boot.kernelModules = [ "kvm-amd" ];
+    boot.extraModulePackages = [ config.boot.kernelPackages.evdi ];
+
+    # Use lanzaboote for improved NixOS SecureBoot support.
+    boot.loader.systemd-boot.enable = lib.mkForce false;
+    boot.lanzaboote = {
+        enable = true;
+        pkiBundle = "/var/lib/sbctl";
+    };
 
     hardware.enableRedistributableFirmware = true;
     hardware.graphics = {
         enable = true;
     };
-    services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
+    # services.xserver.videoDrivers = [ "displaylink" "modesetting" ];
 
     hardware.bluetooth = {
         enable = true;
@@ -115,6 +135,13 @@ in {
                 AutoEnable = true;
             };
         };
+    };
+
+    services.pipewire = {
+        enable = true;
+        alsa.enable = true;
+        alsa.support32Bit = true;
+        pulse.enable = true;
     };
 
     services.resolved = {
@@ -147,7 +174,7 @@ in {
         bluetui
         clang-tools
         x3270
-        displaylink
+        #displaylink
         doc-index
         firefox
         fzf
@@ -166,8 +193,8 @@ in {
         rbw
         rofi-rbw-wayland
         rustup
+        sbctl
         teams-for-linux
-        thunderbird
         typescript-language-server
         wl-clipboard
     ];
@@ -189,21 +216,8 @@ in {
     #
     #     };
     # };
-    services.gnome.gnome-keyring.enable = true;
 
-    programs.sway = {
-        enable = true;
-        wrapperFeatures.gtk = true;
-        extraPackages = with pkgs; [
-            swaylock
-            alacritty
-            bemenu
-            pinentry-bemenu
-            j4-dmenu-desktop
-            grim
-            slurp
-        ];
-    };
+    services.gnome.gnome-keyring.enable = true;
     programs.gnupg.agent = {
         enable = true;
         enableSSHSupport = true;

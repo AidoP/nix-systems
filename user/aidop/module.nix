@@ -56,6 +56,20 @@ in {
             devenv
         ];
 
+        programs.sway = {
+            enable = true;
+            wrapperFeatures.gtk = true;
+            extraPackages = with pkgs; [
+                alacritty
+                bemenu
+                pinentry-bemenu
+                j4-dmenu-desktop
+                grim
+                slurp
+                swaylock
+            ];
+        };
+
         users.users.aidop = {
             isNormalUser = true;
             extraGroups = [ "wheel" "seat" ];
@@ -65,15 +79,6 @@ in {
         };
 
         # SSH Hosts
-        # programs.ssh = {
-        #     enable = true;
-        #     matchBlocks = {
-        #         d3 = {
-        #             hostname = "pthekd3.21csw.com.au";
-        #             user = "aidanp";
-        #         };
-        #     };
-        # };
         fileSystems = let
             # Use the user's gpg-agent session to query
             # for the password of the SSH key when auto-mounting.

@@ -10,6 +10,10 @@
             url = "github:nix-community/home-manager";
             inputs.nixpkgs.follows = "nixpkgs-unstable";
         };
+        lanzaboote = {
+            url = "github:nix-community/lanzaboote/v0.4.2";
+            inputs.nixpkgs.follows = "nixpkgs-unstable";
+        };
         nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05-small";
         nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable-small";
         ragenix.url = "github:yaxitech/ragenix";
@@ -17,6 +21,7 @@
     outputs = inputs@{
         extra,
         home-manager,
+        lanzaboote,
         nixpkgs-stable,
         nixpkgs-unstable,
         ragenix,
@@ -67,8 +72,9 @@
                 system = "x86_64-linux";
                 nixpkgs = nixpkgs-unstable;
                 modules = [
-                    extra.nixosModules.defguard-client
                     aidop.module
+                    extra.nixosModules.defguard-client
+                    lanzaboote.nixosModules.lanzaboote
                 ];
                 users = {
                     aidop = import aidop.home;

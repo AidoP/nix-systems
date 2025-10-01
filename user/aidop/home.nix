@@ -52,6 +52,11 @@ in {
         };
     };
 
+    programs.zsh = {
+        enable = true;
+        initContent = builtins.readFile ./zshrc;
+    };
+
     home.file = builtins.listToAttrs (
         builtins.map ({alias, mountpoint, userDir, ...}: {
             name = alias;
@@ -76,7 +81,7 @@ in {
 
     };
 
-    wayland.windowManager.sway = (import ./sway.nix { inherit config; });
+    wayland.windowManager.sway = (import ./sway.nix { inherit config pkgs; });
 
     xdg.configFile.nvim = {
         enable = true;
